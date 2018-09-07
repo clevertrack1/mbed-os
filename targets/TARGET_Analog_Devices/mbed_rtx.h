@@ -17,24 +17,41 @@
 #ifndef MBED_MBED_RTX_H
 #define MBED_MBED_RTX_H
 
-#if defined(TARGET_EV_COG_AD3029LZ)
+#include <stdint.h>
 
 #ifndef INITIAL_SP
+#if defined(TARGET_EV_COG_AD3029LZ)
+
 #define INITIAL_SP              (0x20004000UL)
-#endif
-#ifndef OS_CLOCK
-#define OS_CLOCK                26000000
-#endif
 
 #elif defined(TARGET_EV_COG_AD4050LZ)
 
-#ifndef INITIAL_SP
 #define INITIAL_SP              (0x20048000UL)
+
+#elif defined(TARGET_EVAL_ADUCM350EBZ)
+
+#define INITIAL_SP              (0x20004000UL)
+
+#else
+#error "INITIAL_SP is not defined for this target in the mbed_rtx.h file"
 #endif
-#ifndef OS_CLOCK
-#define OS_CLOCK                26000000
 #endif
 
+#ifndef OS_CLOCK
+#if defined(TARGET_EV_COG_AD3029LZ)||\
+       defined(TARGET_EV_COG_AD4050LZ)
+
+#define OS_CLOCK                26000000
+
+#elif defined(TARGET_EVAL_ADUCM350EBZ)
+
+#define OS_CLOCK                16000000
+
+#else
+#warning "OS_CLOCK  is not defined for this target in the mbed_rtx.h file"
 #endif
+#endif
+
+
 
 #endif  // MBED_MBED_RTX_H
