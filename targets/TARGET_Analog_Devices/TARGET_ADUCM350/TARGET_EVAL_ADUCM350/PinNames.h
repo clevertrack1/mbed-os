@@ -40,15 +40,16 @@
 
 #ifndef MBED_PINNAMES_H
 #define MBED_PINNAMES_H
+#include <stdint.h>
 
-#include "cmsis.h"
-#include "adi_gpio.h"
+//#include "cmsis.h"
+//#include "gpio.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-typedef enum {
+typedef enum PinDirection{
     PIN_INPUT,
     PIN_OUTPUT
 } PinDirection;
@@ -58,7 +59,7 @@ typedef enum {
 #define GPIO_PORT_SHIFT 12
 
 
-typedef enum {
+typedef enum PinName {
     P0_00  = (0 << GPIO_PORT_SHIFT | 0 ),
     P0_01  = (0 << GPIO_PORT_SHIFT | 1 ),
     P0_02  = (0 << GPIO_PORT_SHIFT | 2 ),
@@ -179,7 +180,7 @@ typedef enum {
 } PinName;
 
 
-typedef enum {
+typedef enum PinMode{
     PullNone = 0,
     PullDown = 1,
     PullUp   = 2,
