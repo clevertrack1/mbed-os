@@ -41,6 +41,7 @@ ENTRY(Reset_Handler)
 
 SECTIONS
 {
+	__vector_table = .;
 	.text :
 	{
 		KEEP(*(.vectors))
