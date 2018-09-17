@@ -1233,16 +1233,7 @@ ADI_SYS_RESULT_TYPE SystemClockSourcePowerDownIfUnused (ADI_SYS_CLOCK_SOURCE_ID 
                 return ADI_SYS_ERR_CLOCK_SOURCE_USED_ROOT_CLK;
             }
 
-#ifndef ADI_ADUCM350
             /* ADuCM350 no longer supports external clock sourcing for WUT */
-
-            /* Check if external clock is used by the WUT and WUT is enabled */
-            val = pADI_WUT->T2CON;
-            if (((val & BITM_WUT_T2CON_ENABLE) == (1 << BITP_WUT_T2CON_ENABLE)) &&
-                ((val & BITM_WUT_T2CON_CLK) == (ADI_WUT_CLK_EXTCLK << BITP_WUT_T2CON_CLK))) {
-                return ADI_SYS_ERR_CLOCK_SOURCE_USED_WUT_CLK;
-            }
-#endif
             break;
 
         default:
