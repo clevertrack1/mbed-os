@@ -1366,6 +1366,9 @@ typedef struct {                                /*!< (@ 0x400A0000) ADI_USB Stru
 
 /** @} */ /* End of group Device_Peripheral_declaration */
 
+#define PWRKEY_VALUE_KEY1 0x4859
+#define PWRKEY_VALUE_KEY2 0xf27b
+
 
 #ifdef __cplusplus
 }
