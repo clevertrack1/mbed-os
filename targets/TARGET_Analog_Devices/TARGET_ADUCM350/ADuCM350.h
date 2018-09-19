@@ -899,7 +899,7 @@ typedef struct {                                /*!< (@ 0x40020000) ADI_GPIO0 St
   __IOM uint16_t  GPIENB;                       /*!< (@ 0x0000002C) GPIO0 GPIO Port 0 interrupt B enable                       */
   __IM  uint16_t  RESERVED11;
   __IOM uint16_t  GPINT;                        /*!< (@ 0x00000030) GPIO0 GPIO Port 0 interrupt Status                         */
-} ADI_GPIO0_Type;                               /*!< Size = 50 (0x32)                                                          */
+} GPIO_TypeDef;                               /*!< Size = 50 (0x32)                                                          */
 
 
 
