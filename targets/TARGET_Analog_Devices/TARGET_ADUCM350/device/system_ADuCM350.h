@@ -27,28 +27,28 @@
  * add result types to doxygen
  */
 
-#ifndef __SYSTEM_H__
-#define __SYSTEM_H__
-
-#include <stddef.h>     /* for 'NULL' */
-
-#include "device.h"
-
-/* Needed for checking GPT input clocks when powering down clock sources. */
-#include "gpt.h"
-/* Needed for checking WUT input clocks when powering down clock sources. */
-#include "wut.h"
-/* Needed for external GPIO driving root_clk. */
-#include "gpio.h"
+#ifndef __SYSTEM_ADUCM350_H__
+#define __SYSTEM_ADUCM350_H__
 
 #ifdef __cplusplus
  extern "C" {
-#endif
+#endif 
 
-#define ADI_ENTER_CRITICAL_REGION() 
-#define ADI_EXIT_CRITICAL_REGION()
+extern uint32_t SystemCoreClock;          /*!< System Clock Frequency (Core Clock) */
+extern void SystemInit(void);
+extern void SystemCoreClockUpdate(void);
+extern void SetSysClock(void);
 
-
+// added: MVB
+#define ADI_SYSTEM_CLOCK_TRANSITION 1
+// added: AG
+//#define ADI_DEBUG 1
+//#define OS_USE_SEMIHOSTING 1
+//#define OS_USE_TRACE_SEMIHOSTING_DEBUG 0
+//#define OS_USE_TRACE_SEMIHOSTING_STDOUT 0
+//or
+//#define OS_USE_TRACE_ITM 1
+//#define __ARM_ARCH_7M__
 /* clock IDs */
 typedef enum {
 
@@ -247,7 +247,6 @@ typedef enum
 
 /*! \enum ADI_SYS_CLOCK_STATE_TYPE
  *  Clock configuration states:
- *  - ADI_SYS_CLOCK_STATE_INVALID:          Invalid state transition
  *  - ADI_SYS_CLOCK_STATE_MINIMAL:          The state the ADuCM350 powers up in. Uses HFOSC to supply the system clock.
  *  - ADI_SYS_CLOCK_STATE_MEASUREMENT:      The measurement configuration, can be setup at build time to use either HFXTAL or SPLL as source for the system clock.
  *                                          This state does not include USB.
@@ -258,8 +257,8 @@ typedef enum
  *                                          configurations are requested asynchronously.
  */
 typedef enum {
-    ADI_SYS_CLOCK_STATE_INVALID,               /* use to flag invalid state transitions */
-    ADI_SYS_CLOCK_STATE_MINIMAL, 
+    ADI_SYS_CLOCK_STATE_INVALID = 0,  
+    ADI_SYS_CLOCK_STATE_MINIMAL,        /* use one-based enum to avoid confusion with NULL, which is used to flag invalid state transitions */
     ADI_SYS_CLOCK_STATE_MEASUREMENT,
     ADI_SYS_CLOCK_STATE_USB,
     ADI_SYS_CLOCK_STATE_USB_MEASUREMENT,
@@ -306,8 +305,8 @@ extern void                         SetSystemClockMux                       (ADI
 extern ADI_SYS_CLOCK_MUX_ID         GetSystemClockMux                       (ADI_SYS_CLOCK_MUX_GROUP_ID groupID);
 extern uint32_t                     GetSystemExtClkFreq                     (void);
 extern uint32_t                     SystemGetClockFrequency                 (ADI_SYS_CLOCK_ID id);
-extern ADI_SYS_RESULT_TYPE          SystemEnableClock                       (ADI_SYS_CLOCK_GATE_ID id, bool bFlag);
-extern ADI_SYS_RESULT_TYPE          SystemEnableClockSource                 (ADI_SYS_CLOCK_SOURCE_ID id, bool bEnable);
+extern ADI_SYS_RESULT_TYPE          SystemEnableClock                       (ADI_SYS_CLOCK_GATE_ID id, bool_t bFlag);
+extern ADI_SYS_RESULT_TYPE          SystemEnableClockSource                 (ADI_SYS_CLOCK_SOURCE_ID id, bool_t bEnable);
 extern ADI_SYS_RESULT_TYPE          SetSystemClockDivider                   (ADI_SYS_CLOCK_ID id, uint8_t div);
 extern ADI_SYS_RESULT_TYPE          SystemClockSourcePowerUp                (ADI_SYS_CLOCK_SOURCE_ID id,
                                                                              ADI_SYS_CLOCK_TIMEOUT_TYPE timeout);
@@ -325,12 +324,11 @@ extern ADI_SYS_RESULT_TYPE          GetClockStateConfig                     (ADI
                                                                              ADI_SYS_CLOCK_STATE_CONFIG_TYPE* const pConfig);
 extern ADI_SYS_RESULT_TYPE          GetClockState                           (ADI_SYS_CLOCK_STATE_TYPE* pState);
 #endif
-extern uint32_t SystemCoreClock;
 
 extern ADI_SYS_RESULT_TYPE          SystemEnterLowPowerMode                 (const ADI_SYS_POWER_MODE PowerMode,
-                                                                             bool volatile *        pbInterruptOccurred,
+                                                                             bool_t volatile *        pbInterruptOccurred,
                                                                              const uint8_t            PriorityMask);
-extern void                         SystemExitLowPowerMode                  (bool volatile *        pbInterruptOccurred);
+extern void                         SystemExitLowPowerMode                  (bool_t volatile *        pbInterruptOccurred);
 
 #ifdef __cplusplus
 }

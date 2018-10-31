@@ -41,6 +41,8 @@
 #ifndef MBED_CMSIS_H
 #define MBED_CMSIS_H
 #define     __C
+#include <stdint.h>
+#include "cmsis_gcc.h"
 #include "ADuCM350.h"
 #include "cmsis_nvic.h"
 #undef      __C

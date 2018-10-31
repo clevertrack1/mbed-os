@@ -1,8 +1,9 @@
-#ifndef __DEVICE_H_
-#define __DEVICE_H_
+#ifndef MBED_DEVICE_H
+#define MBED_DEVICE_H
 
-#include "macros.h"
-#include "ADuCM350.h"
+//=======================================
+#define DEVICE_ID_LENGTH       24
+
 #include "objects.h"
 
 #endif

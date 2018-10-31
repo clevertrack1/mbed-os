@@ -20,15 +20,13 @@ License Agreement.
  *  @{
  */
 
+#include <stdbool.h>
 #include <stdint.h>
+#include <stddef.h>
 #include "system_ADuCM350.h"
-#include "ADuCM350.h"
 
-#ifdef RELOCATE_IVT
-extern void __relocated_vector_table;
-#else
-extern void __vector_table;
-#endif
+//void SetSystemClockMux (ADI_SYS_CLOCK_MUX_ID id);
+extern void (*__vector_table[])(void);
 
 /*----------------------------------------------------------------------------
   DEFINES
@@ -39,12 +37,9 @@ extern void __vector_table;
 #define __HFOSC     16000000  /*!< System clock constant */
 #define __HFXTAL    16000000  /*!< System clock constant (may also be 8000000) */
 #define __LFCLK        32768  /*!< System clock constant (same whether internal osc or external xtal) */
-// __HFSPLL is now calculated using the programmed clock source and M/N/DIV2
-// #define __HFSPLL    32000000  /*!< System clock constant */
 
-/* power control deep-sleep and sleep-on-exit bits */
-#define SLEEPDEEP_BIT                    (1 << 2)  /*!< SCR Deep Sleep (SLEEPDEEP) */
-#define SLEEPONEXIT_BIT                  (1 << 1)  /*!< SCR Sleep On Exit (SLEEPONEXIT) */
+
+
 
 /* For simplicity, use a single timeout value for all clock sources even if expected stabilization times vary wildly */
 /* (e.g. LFXTAL needs ~500ms, HFOSC needs ~350ns). While polling the system detects the stabilization immediately    */
@@ -217,24 +212,11 @@ static ADI_SYS_CLOCK_STATE_TYPE     currentState = ADI_SYS_CLOCK_STATE_INVALID;
 void SystemInit (void)
 {
 
-/* version check */
-#if (ADI_VERSION_CURRENT < ADI_VERSION_2_1_0_0)
-#error "Unsupported version."
-#endif
-
     /* Switch the Interrupt Vector Table Offset Register
      * (VTOR) to point to the relocated IVT in SRAM
      */
-
-    ADI_ENTER_CRITICAL_REGION();  // do all this in safe way
-
-    // switch from boot ROM IVT to application's IVT
-    // set the System Control Block, Vector Table Offset Register
-#ifdef RELOCATE_IVT
-    SCB->VTOR = (uint32_t) &__relocated_vector_table;
-#else
+#if 0
     SCB->VTOR = (uint32_t) &__vector_table;
-#endif
 
     // set all three (USGFAULTENA, BUSFAULTENA, and MEMFAULTENA) fault enable bits
     // in the System Control Block, System Handler Control and State Register
@@ -247,7 +229,6 @@ void SystemInit (void)
     __ISB();  // MUST OCCURE IMMEDIATELY AFTER UPDATING SCB->CPACR!!!
     __DSB();
 
-    ADI_EXIT_CRITICAL_REGION();
 
     /* restore clocks to a known power-up reset condition */
 
@@ -288,13 +269,13 @@ void SystemInit (void)
     /* Change the PLL input source from the default HFOSC to HFXTAL */
     /* to satisfy the majority of use cases. It has no effect if    */
     /* no PLL is used.                                              */
-    SetSystemClockMux(ADI_SYS_CLOCK_MUX_SPLL_HF_XTAL);
+    SetSystemClockMux(pADI_SYS_CLOCK_MUX_SPLL_HF_XTAL);
 
     /* disable external HF crystal oscillator */
     /* (don't disable LF crystal or the RTC will lose time */
     pADI_PWR->OSCKEY = OSCKEY_UNLOCK;
     pADI_PWR->OSCCTRL &= ~BITM_PWR_OSCCTRL_HFXTALEN;
-
+#endif
     /* compute new internal clocks based on the newly reset controller */
     SystemCoreClockUpdate();
 }
@@ -538,7 +519,7 @@ void SetSystemClockMux (ADI_SYS_CLOCK_MUX_ID id)
  * @return Multiplexor select value.
  *
  */
-ADI_SYS_CLOCK_MUX_ID GetSystemClockMux(ADI_SYS_CLOCK_MUX_GROUP_ID id) {
+ ADI_SYS_CLOCK_MUX_ID GetSystemClockMux(ADI_SYS_CLOCK_MUX_GROUP_ID id) {
     uint16_t mask;
     uint16_t position;
     uint16_t offset;
