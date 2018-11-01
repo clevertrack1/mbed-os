@@ -1,6 +1,6 @@
 /* mbed Microcontroller Library
  *******************************************************************************
- * Copyright (c) 2018, 
+ * Copyright (c) 2016, STMicroelectronics
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -27,63 +27,22 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************
  */
-#ifndef MBED_OBJECTS_H
-#define MBED_OBJECTS_H
-
-#include "cmsis.h"
-#include "PortNames.h"
-#include "PeripheralNames.h"
-#include "PinNames.h"
+#ifndef MBED_PORTNAMES_H
+#define MBED_PORTNAMES_H
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-struct gpio_s {
-	  void *pjc;
-//    PinName pin;
-//    PinMode mode;
-//    PinDirection direction;
-//    HAL_GPIO_PIN hal_pin;
-//    uint8_t hal_port_num;
-//    uint8_t hal_pin_num;
-};
+typedef enum {
+    Port0 = 0,
+    Port1 = 1,
+    Port2 = 2,
+    Port3 = 3,
+    Port4 = 4
+} PortName;
 
-typedef struct gpio_s gpio_t;
-
-struct serial_s {
-	void *pjc;	
-//	PinName pin;
-//	void * UARTx;
-//	void  index;
-//	struct {
-//		
-//	} uart_config;
-};
-
-#if 0
-struct gpio_irq_s {
-	  void pjc;
-//    IRQn_Type irq_n;
-//    uint32_t irq_index;
-//    uint32_t event;
-//    PinName pin;
-};
-
-
-struct port_s {
-	  void pjc;	
-//    PortName port;
-//    uint32_t mask;
-//    PinDirection direction;
-//    __IO uint32_t *reg_in;
-//    __IO uint32_t *reg_out;
-};
-
-
-#endif
 #ifdef __cplusplus
 }
 #endif
-
 #endif

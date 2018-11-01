@@ -41,37 +41,17 @@
 #ifndef MBED_CMSIS_NVIC_H
 #define MBED_CMSIS_NVIC_H
 
-#include "cmsis.h"
-
 #define NVIC_USER_IRQ_OFFSET 16
-#define NVIC_USER_IRQ_NUMBER 72
+#define NVIC_USER_IRQ_NUMBER 60
 #define NVIC_NUM_VECTORS     (NVIC_USER_IRQ_OFFSET + NVIC_USER_IRQ_NUMBER)
 
-#define NVIC_RAM_VECTOR_ADDRESS   0x20000000
+#define NVIC_RAM_VECTOR_ADDRESS 0x2004000
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-/** Set the ISR for IRQn
- *
- * Sets an Interrupt Service Routine vector for IRQn; if the feature is available, the vector table is relocated to SRAM
- * the first time this function is called
- * @param[in] IRQn   The Interrupt Request number for which a vector will be registered
- * @param[in] vector The ISR vector to register for IRQn
+/*
+ * Size of the whole vector table in bytes. Each vector is on 32 bits.
  */
-void NVIC_SetVector(IRQn_Type IRQn, uint32_t vector);
+#define NVIC_VECTORS_SIZE       (NVIC_NUM_VECTORS * 4)
 
-/** Get the ISR registered for IRQn
- *
- * Reads the Interrupt Service Routine currently registered for IRQn
- * @param[in] IRQn   The Interrupt Request number the vector of which will be read
- * @return           Returns the ISR registered for IRQn
- */
-uint32_t NVIC_GetVector(IRQn_Type IRQn);
 
-#ifdef __cplusplus
-}
-#endif
 
 #endif
