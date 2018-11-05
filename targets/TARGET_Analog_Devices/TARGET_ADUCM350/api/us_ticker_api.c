@@ -1,35 +1,17 @@
 #include <stddef.h>
 #include "us_ticker_api.h"
 #include "PeripheralNames.h"
+#include "ADuCM350.h"
 
-/** Set ticker IRQ handler
- *
- * @param ticker_irq_handler IRQ handler to be connected
- *
- * @return previous ticker IRQ handler
- *
- * @note by default IRQ handler is set to ::ticker_irq_handler
- * @note this function is primarily for testing purposes and it's not required part of HAL implementation
- *
- */
-ticker_irq_handler_type set_us_ticker_irq_handler(ticker_irq_handler_type ticker_irq_handler){
-	return null;
-}
+#define TIMER_COUNT                pADI_GPT0->CURCNT
+#define TIMER_COMPARE              pADI_GPT0->PWMMATCH
+#define TIMER_CTRL                 pADI_GPT0->CTL
+#define TIMER_CTRL_ENABLE_Msk	   
+#define TIMER_IRQn                 TIMER0_IRQn
+#define TIMER_ICR                  pADI_GPT0->CLRINT
+#define TIMER_ICR_COMPARE_Msk      pADI_GPT0_CTL_EVENT_Msk
+#define TIMER_CTRL_COMPARE_ENABLE_Msk pADI_GPT0_CLRINT_TMOUT_Msk
 
-/** Get ticker's data
- *
- * @return The microsecond ticker data
- */
-const ticker_data_t *get_us_ticker_data(void){
-	return 0;
-}
-
-
-/** The wrapper for ticker_irq_handler, to pass us ticker's data
- *
- */
-void us_ticker_irq_handler(void){
-}
 
 /* HAL us ticker */
 
@@ -62,7 +44,7 @@ void us_ticker_irq_handler(void){
  * }
  * @endcode
  */
-void us_ticker_init(void);
+void us_ticker_init(void)
 {
 	#if 0
       // Enable clock gate so processor can read TIMER registers
@@ -146,7 +128,7 @@ void us_ticker_init(void);
  */
 uint32_t us_ticker_read(void)
 {
-     return 0; // TIMER_COUNT;
+     return TIMER_COUNT;
 }
 
 /** Set interrupt for specified timestamp
@@ -170,7 +152,7 @@ uint32_t us_ticker_read(void)
  * }
  * @endcode
  */
-void us_ticker_set_interrupt(timestamp_t timestamp);
+void us_ticker_set_interrupt(timestamp_t timestamp)
 {
       TIMER_COMPARE = timestamp;
       TIMER_CTRL |= TIMER_CTRL_COMPARE_ENABLE_Msk;
@@ -241,11 +223,11 @@ void us_ticker_fire_interrupt(void)
  * }
  * @endcode
  */
-const ticker_info_t *us_ticker_get_info(void);
+const ticker_info_t *us_ticker_get_info(void)
 {
      static const ticker_info_t info = {
          1000000,    // 1 MHz
-         32          // 32 bit counter
+         16          // bit width of counter
      };
      return &info;
 }

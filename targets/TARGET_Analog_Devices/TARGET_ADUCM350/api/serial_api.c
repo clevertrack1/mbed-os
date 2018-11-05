@@ -1,3 +1,7 @@
+#include <stddef.h>
+#include "serial_api.h"
+#include "PeripheralNames.h"
+
 /** Initialize the serial peripheral. It sets the default parameters for serial
  *  peripheral, and configures its specifieds pins.
  *

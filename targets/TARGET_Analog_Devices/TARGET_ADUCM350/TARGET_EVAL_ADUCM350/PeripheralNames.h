@@ -53,10 +53,6 @@ typedef enum {
 
 typedef enum {
     UART_0 = 0,
-    UART_1 = 1,
-    UART_2 = 2,
-    UART_3 = 3,
-    UART_4 = 4,
 } UARTName;
 
 #define STDIO_UART_TX     USBTX
@@ -65,8 +61,6 @@ typedef enum {
 
 typedef enum {
     I2C_0 = 0,
-    I2C_1 = 1,
-    I2C_2 = 2,
 } I2CName;
 
 #define TPM_SHIFT   8
@@ -125,8 +119,7 @@ typedef enum {
 
 typedef enum {
     SPI_0 = 0,
-    SPI_1 = 1,
-    SPI_2 = 2,
+	SPI_1 = 1,
 } SPIName;
 
 #ifdef __cplusplus
