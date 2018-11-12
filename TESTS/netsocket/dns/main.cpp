@@ -178,11 +178,10 @@ Case cases[] = {
 #endif
     Case("SYNCHRONOUS_DNS", SYNCHRONOUS_DNS),
     Case("SYNCHRONOUS_DNS_MULTIPLE", SYNCHRONOUS_DNS_MULTIPLE),
-    Case("SYNCHRONOUS_DNS_CACHE", SYNCHRONOUS_DNS_CACHE),
     Case("SYNCHRONOUS_DNS_INVALID", SYNCHRONOUS_DNS_INVALID),
 };
 
-Specification specification(test_setup, cases);
+Specification specification(test_setup, cases, greentea_continue_handlers);
 
 int main()
 {

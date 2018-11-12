@@ -74,7 +74,7 @@ public:
                          PinName miso,
                          PinName sclk,
                          PinName csel,
-                         int freq = 40000000,
+                         int freq = MBED_CONF_DATAFLASH_SPI_FREQ,
                          PinName nowp = NC);
 
     /** Initialize a block device
@@ -173,6 +173,9 @@ private:
     int _sync(void);
     int _write_page(const uint8_t *buffer, uint32_t addr, uint32_t offset, uint32_t size);
     uint32_t _translate_address(bd_addr_t addr);
+
+    // Mutex for thread safety
+    mutable PlatformMutex _mutex;
 };
 
 

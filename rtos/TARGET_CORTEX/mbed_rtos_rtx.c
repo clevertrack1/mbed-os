@@ -25,9 +25,8 @@
 
 osThreadAttr_t _main_thread_attr;
 
-/** The main thread's stack size can be configured by the application, if not explicitly specified it'll default to 4K */
 #ifndef MBED_CONF_APP_MAIN_STACK_SIZE
-#define MBED_CONF_APP_MAIN_STACK_SIZE 4096
+#define MBED_CONF_APP_MAIN_STACK_SIZE MBED_CONF_RTOS_MAIN_THREAD_STACK_SIZE
 #endif
 MBED_ALIGN(8) char _main_stack[MBED_CONF_APP_MAIN_STACK_SIZE];
 mbed_rtos_storage_thread_t _main_obj;
@@ -53,7 +52,7 @@ MBED_NORETURN void mbed_rtos_start()
     _main_thread_attr.cb_size = sizeof(_main_obj);
     _main_thread_attr.cb_mem = &_main_obj;
     _main_thread_attr.priority = osPriorityNormal;
-    _main_thread_attr.name = "main_thread";
+    _main_thread_attr.name = "main";
 
     /* Allow non-secure main thread to call secure functions */
 #if defined(DOMAIN_NS) && (DOMAIN_NS == 1U)

@@ -21,9 +21,14 @@ using namespace mbed;
 
 InternetSocket::InternetSocket()
     : _stack(0), _socket(0), _timeout(osWaitForever),
-      _readers(0), _writers(0), _factory_allocated(false),
-      _pending(0)
+      _readers(0), _writers(0), _pending(0),
+      _factory_allocated(false)
 {
+}
+
+InternetSocket::~InternetSocket()
+{
+    close();
 }
 
 nsapi_error_t InternetSocket::open(NetworkStack *stack)
@@ -56,13 +61,17 @@ nsapi_error_t InternetSocket::close()
     _lock.lock();
 
     nsapi_error_t ret = NSAPI_ERROR_OK;
-    if (_socket) {
-        _stack->socket_attach(_socket, 0, 0);
-        nsapi_socket_t socket = _socket;
-        _socket = 0;
-        ret = _stack->socket_close(socket);
+    if (!_socket)  {
+        _lock.unlock();
+        return NSAPI_ERROR_NO_SOCKET;
     }
-    _stack = 0;
+
+    // Just in case - tell the stack not to callback any more, then remove this socket.
+    _stack->socket_attach(_socket, 0, 0);
+    nsapi_socket_t socket = _socket;
+    _socket = 0;
+    ret = _stack->socket_close(socket);
+    _stack = 0; // Invalidate the stack pointer - otherwise open() fails.
 
     // Wakeup anything in a blocking operation
     // on this socket
@@ -77,7 +86,7 @@ nsapi_error_t InternetSocket::close()
 
     _lock.unlock();
 
-    // When allocated by accept() call, will self desctruct on close();
+    // When allocated by accept() call, will destroy itself on close();
     if (_factory_allocated) {
         delete this;
     }

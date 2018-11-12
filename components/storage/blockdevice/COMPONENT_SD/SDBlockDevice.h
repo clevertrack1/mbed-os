@@ -21,7 +21,11 @@
 #ifdef DEVICE_SPI
 
 #include "BlockDevice.h"
-#include "mbed.h"
+#include "drivers/SPI.h"
+#include "drivers/Timer.h"
+#include "drivers/MbedCRC.h"
+#include "drivers/DigitalOut.h"
+#include "platform/platform.h"
 #include "platform/PlatformMutex.h"
 
 /** SDBlockDevice class
@@ -177,10 +181,10 @@ private:
     bool _is_valid_trim(bd_addr_t addr, bd_size_t size);
 
     /* SPI functions */
-    Timer _spi_timer;               /**< Timer Class object used for busy wait */
+    mbed::Timer _spi_timer;               /**< Timer Class object used for busy wait */
     uint32_t _init_sck;             /**< Intial SPI frequency */
     uint32_t _transfer_sck;         /**< SPI frequency during data transfer/after initialization */
-    SPI _spi;                       /**< SPI Class object */
+    mbed::SPI _spi;                       /**< SPI Class object */
 
     /* SPI initialization function */
     void _spi_init();
@@ -195,7 +199,7 @@ private:
     int _freq(void);
 
     /* Chip Select and SPI mode select */
-    DigitalOut _cs;
+    mbed::DigitalOut _cs;
     void _select();
     void _deselect();
 
@@ -210,15 +214,17 @@ private:
     }
 
     PlatformMutex _mutex;
-    bd_size_t _block_size;
-    bd_size_t _erase_size;
+    static const uint32_t _block_size;
+    uint32_t _erase_size;
     bool _is_initialized;
     bool _dbg;
-    bool _crc_on;
     uint32_t _init_ref_count;
 
-    MbedCRC<POLY_7BIT_SD, 7> _crc7;
-    MbedCRC<POLY_16BIT_CCITT, 16> _crc16;
+#if MBED_CONF_SD_CRC_ENABLED
+    bool _crc_on;
+    mbed::MbedCRC<POLY_7BIT_SD, 7> _crc7;
+    mbed::MbedCRC<POLY_16BIT_CCITT, 16> _crc16;
+#endif
 };
 
 #endif  /* DEVICE_SPI */

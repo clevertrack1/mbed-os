@@ -24,7 +24,7 @@
 #include <string.h>
 #include <algorithm>
 #include "FlashIAP.h"
-#include "mbed_assert.h"
+#include "platform/mbed_assert.h"
 
 
 #ifdef DEVICE_FLASH
@@ -201,6 +201,11 @@ uint32_t FlashIAP::get_flash_start() const
 uint32_t FlashIAP::get_flash_size() const
 {
     return flash_get_size(&_flash);
+}
+
+uint8_t FlashIAP::get_erase_value() const
+{
+    return flash_get_erase_value(&_flash);
 }
 
 }

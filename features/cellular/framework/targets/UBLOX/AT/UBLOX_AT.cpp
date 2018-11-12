@@ -22,38 +22,30 @@
 using namespace mbed;
 using namespace events;
 
+#ifdef TARGET_UBLOX_C030_R410M
+static const AT_CellularBase::SupportedFeature unsupported_features[] =  {
+    AT_CellularBase::AT_CGSN_WITH_TYPE,
+    AT_CellularBase::SUPPORTED_FEATURE_END_MARK
+};
+#endif
+
 UBLOX_AT::UBLOX_AT(EventQueue &queue) : AT_CellularDevice(queue)
 {
+#ifdef TARGET_UBLOX_C030_R410M
+    AT_CellularBase::set_unsupported_features(unsupported_features);
+#endif
 }
 
 UBLOX_AT::~UBLOX_AT()
 {
 }
 
-CellularNetwork *UBLOX_AT::open_network(FileHandle *fh)
+AT_CellularNetwork *UBLOX_AT::open_network_impl(ATHandler &at)
 {
-    if (!_network) {
-        ATHandler *atHandler = get_at_handler(fh);
-        if (atHandler) {
-            _network = new UBLOX_AT_CellularNetwork(*atHandler);
-            if (!_network) {
-                release_at_handler(atHandler);
-            }
-        }
-    }
-    return _network;
+    return new UBLOX_AT_CellularNetwork(at);
 }
 
-CellularPower *UBLOX_AT::open_power(FileHandle *fh)
+AT_CellularPower *UBLOX_AT::open_power_impl(ATHandler &at)
 {
-    if (!_power) {
-        ATHandler *atHandler = get_at_handler(fh);
-        if (atHandler) {
-            _power = new UBLOX_AT_CellularPower(*atHandler);
-            if (!_power) {
-                release_at_handler(atHandler);
-            }
-        }
-    }
-    return _power;
+    return new UBLOX_AT_CellularPower(at);
 }

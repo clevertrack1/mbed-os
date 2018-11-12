@@ -55,15 +55,19 @@ typedef enum {
 } PinDirection;
 
 typedef enum {
+    /* Input pull mode */
     PullNone = 0,
     PullDown,
     PullUp,
     
-    PushPull,
+    /* I/O mode */
+    InputOnly,
+    PushPullOutput,
     OpenDrain,
-    Quasi,
+    QuasiBidirectional,
     
-    PullDefault = PullUp,
+    /* Default input pull mode */
+    PullDefault = PullUp
 } PinMode;
 
 typedef enum {
@@ -127,11 +131,6 @@ typedef enum {
     // Button naming
     SW2 = PA_15,
     SW3 = PA_14,
-    
-    SPI_MOSI    = PD_13,
-    SPI_MISO    = PD_14,
-    SPI_SCK     = PD_15,
-    SPI_PERSISTENT_MEM_CS = PD_12,
     
 } PinName;
 
