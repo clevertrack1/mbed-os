@@ -1,0 +1,140 @@
+/*###ICF### Section handled by ICF editor, don't touch! ****/
+/*-Editor annotation file-*/
+/* IcfEditorFile="$TOOLKIT_DIR$\config\ide\IcfEditor\cortex_v1_0.xml" */
+
+/*-Sizes-*/
+define symbol __ICFEDIT_size_cstack__ = 0x400;
+define symbol __ICFEDIT_size_heap__   = 0x200;
+
+/**** End of ICF editor section. ###ICF###*/
+
+define memory mem with size        = 4G;
+
+// symbols
+define symbol USE_PARITY = 1;
+
+define symbol ROM0_BASE   = 0x00000000;  // flash bank0 address
+define symbol ROM0_SIZE   = 256K;        // 256k flash0 size
+
+define symbol ROM1_BASE   = 0x00040000;  // flash bank1 address
+define symbol ROM1_SIZE   = 128K;        // 128k flash1 size
+
+define symbol PAGE_SIZE   = 2K;          // 2k flash page size
+
+define symbol RAM0_BASE   = 0x20000000;  // non-volatile RAM bank address
+define symbol RAM1_BASE   = 0x20040000;  // volatile RAM bank address
+define symbol RAM_SIZE    = 16K;         // 16k RAM bank size
+
+
+// regions
+define region ROM0_page0          = mem:[from ROM0_BASE size PAGE_SIZE];
+define region ROM0_region         = mem:[from (ROM0_BASE + PAGE_SIZE) size (ROM0_SIZE - PAGE_SIZE)];
+define region ROM1_region         = mem:[from ROM1_BASE size ROM1_SIZE];
+
+// ROM region spanning both ROM0 & ROM1 (excluding page0) for placement of bulk read-only code/data
+// Note: page0 and is excluded from the bulk placement region because it is reserved
+// for propritary user security/saftey code that is verified by the boot kernel.
+define region ROM_spanning_region = mem:[from (ROM0_BASE + PAGE_SIZE) size (ROM0_SIZE - PAGE_SIZE + ROM1_SIZE)];
+
+define region RAM_preserve_region = mem:[from RAM0_BASE size RAM_SIZE];
+define region RAM_volatile_region = mem:[from RAM1_BASE size RAM_SIZE];
+
+
+// C-Runtime blocks
+define block CSTACK with alignment = 8, size = __ICFEDIT_size_cstack__ { };
+define block HEAP   with alignment = 8, size = __ICFEDIT_size_heap__   { };
+
+
+// Flash0/page0 manditory checksum blocks, as verified by the boot kernel at startup.
+// Technically, the reverse signature is optional, but is included here for completeness.
+define block CHECKSUM   with alignment = 4, size = 4 { ro section .checksum };
+define block RSIGNATURE with alignment = 4, size = 4 { ro section .rsignature };
+
+// Flash0/page0 manditory checksum placements
+place at address 0x000007FC { block CHECKSUM };
+place at address 0x000007F8 { block RSIGNATURE };
+
+
+// Full checksums blocks are optional, and occupy 8 bytes each (4-bytes
+// forward and 4-bytes reverse) at the end of each flash region.
+define block CHECKSUM0 with alignment = 8, size = 8 { ro section .checksum0 };
+define block CHECKSUM1 with alignment = 8, size = 8 { ro section .checksum1 };
+
+// Checksum placements
+place at end of ROM0_region { block CHECKSUM0 };
+place at end of ROM1_region { block CHECKSUM1 };
+
+
+// System-wide protection attributes (just above Flash1 CHECKSUM1)
+define block JTAG_DISABLE  with alignment = 4, size = 4 {};
+define block LOWER_FA_KEY  with alignment = 4, size = 4 {};
+define block UPPER_FA_KEY  with alignment = 4, size = 4 {};
+define block WRITE_PROTECT with alignment = 4, size = 4 {};
+
+// Flash1 critical system attribute placements
+place at address 0x0005FFE8 { block JTAG_DISABLE };
+place at address 0x0005FFEC { block LOWER_FA_KEY };
+place at address 0x0005FFF0 { block UPPER_FA_KEY };
+place at address 0x0005FFF4 { block WRITE_PROTECT };
+
+
+
+// KEEP these blocks, avoiding linker elimination...
+keep {
+    block CHECKSUM,
+    block RSIGNATURE,
+    block CHECKSUM0,
+    block CHECKSUM1,
+    block JTAG_DISABLE,
+    block LOWER_FA_KEY,
+    block UPPER_FA_KEY,
+    block WRITE_PROTECT,
+};
+
+
+// Parity checking is optional
+//
+if (USE_PARITY)
+{
+  define block PARITY0 with alignment = 4, size = 0x1F00 { ro section .parity0 };
+  define block PARITY1 with alignment = 4, size = 0x0F80 { ro section .parity1 };
+
+  place at address 0x0003E000 { block PARITY0 };
+  place at address 0x0005F000 { block PARITY1 };
+
+  // conditionally keep these blocks as well...
+  keep { block PARITY0, block PARITY1 };
+}
+
+
+// initializations...
+do not initialize                     { section .noinit };
+
+initialize by copy { rw };
+
+if (isdefinedsymbol(__USE_DLIB_PERTHREAD))
+{
+  // Required in a multi-threaded application
+  initialize by copy with packing = none { section __DLIB_PERTHREAD };
+}
+
+// Remaining Placements...
+
+// ROM0: force IVT to flash start address
+place at start of ROM0_page0          { ro section .intvec };
+
+// ROM: spread remaining read-only code/data across both flash banks
+place in          ROM_spanning_region         { ro };
+
+
+// RAM: place stack separately @ high-address RAM because stack grows towards low addresses
+place at end of   RAM_preserve_region { block CSTACK };
+
+// RAM: build remaining heap, etc., from low-address RAM (DEFAULT PLACEMENT)
+place in          RAM_preserve_region { rw, block HEAP };
+
+// RAM: place volatile (non-hibernate-preserved) data into named segment
+// NOTE: To direct data to reside in volatile (Bank1) memory, use either the:
+//    '#pragma location="volatile_ram"' directive preceding, or the
+//    '@ "volatile_ram"' suffix following data definitions.
+place in          RAM_volatile_region { rw section volatile_ram };
